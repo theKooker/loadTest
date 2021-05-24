@@ -29,7 +29,7 @@ public class Store implements Runnable {
 
             UUID uuid = UUID.randomUUID();
             String orderJson = "{\"id\":\"" + uuid.toString()
-                    + "\",\"isPaid\":true,\"remark\":null,\"courier\":\"loadTest\",\"version\":\"1.2\",\"customer\":{\"city\":\"AAH\",\"name\":\"Dont touch me\",\"street\":\"Per\u00fa\",\"postalCode\":\"C1067\",\"companyName\":null,\"phoneNumber\":\"1134250429\",\"streetNumber\":\"346\",\"extraAddressInfo\":\"Per\u00fa 346\"},\"orderKey\":\"HITEW\",\"platform\":\"Menu\",\"products\":[{\"name\":\"Papas fritas\",\"count\":1,\"price\":\"150.00\",\"remark\":null,\"category\":null,\"sideDishes\":[]}],\"clientKey\":\"clientKey\",\"orderDate\":\"2021-05-18 17:14:58\",\"orderType\":\"delivery\",\"totalPrice\":\"150.00\",\"restaurantId\":\""
+                    + "\",\"isPaid\":true,\"remark\":null,\"courier\":\"loadTest\",\"version\":\"1.2\",\"customer\":{\"city\":\"AAH\",\"name\":\"Dont touch me\",\"street\":\"Per\u00fa\",\"postalCode\":\"C1067\",\"companyName\":null,\"phoneNumber\":\"1134250429\",\"streetNumber\":\"null\",\"extraAddressInfo\":\"Per\u00fa 346\"},\"orderKey\":\"HITEW\",\"platform\":\"Menu\",\"products\":[{\"name\":\"Papas fritas\",\"count\":1,\"price\":\"150.00\",\"remark\":null,\"category\":null,\"sideDishes\":[]}],\"clientKey\":\"clientKey\",\"orderDate\":\"2021-05-18 17:14:58\",\"orderType\":\"delivery\",\"totalPrice\":\"150.00\",\"restaurantId\":\""
                     + this.storeNumber
                     + "\",\"deliveryCosts\":\"0.00\",\"paymentMethod\":\"online\",\"totalDiscount\":0,\"publicReference\":\"HITEW\",\"requestedDeliveryTime\":\"2021-05-18 17:27:58\"}";
             System.out.println("orderJson :"+orderJson);

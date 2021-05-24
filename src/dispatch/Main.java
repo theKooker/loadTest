@@ -66,11 +66,11 @@ class Main {
         Random rng = new Random(400);//seed to generate the random time
         System.out.println("Please give the number of orders to create for each store :");
         ocount = sc.nextInt();
-        System.out.println("Please give max delay between orders :");
+        System.out.println("Please give max delay between orders (in seconds) :");
         maxDelay = sc.nextInt();
-        System.out.println("Please give min delay between orders :");
+        System.out.println("Please give min delay between orders (in seconds) :");
         minDelay = sc.nextInt();
-        System.out.println("Please give auto-accept delay between orders :");
+        System.out.println("Please give auto-accept delay between orders (in minutes)  :");
         aDelay = sc.nextInt();
         sc.close();
         for (Store store : listOfStores) {
