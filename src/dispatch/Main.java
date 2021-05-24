@@ -96,6 +96,20 @@ class Main {
                 time = System.currentTimeMillis();
             }
         }
+        /**
+         * set the order status "delivered" again (we dont estimate time here.)
+         */
+        for(Store store :listOfStores){
+            for(Order order:store.orders){
+                String updateData = "{\"status\":\"delivered\"}";
+                order.orderId = getRideOfEnd(order.orderId);
+                Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
+                +order.orderId,updateData);
+                System.out.println(ou.put());
+               
+            }
+        }
+
     }
 
     public static String getRideOfEnd(String str) {
