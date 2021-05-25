@@ -111,7 +111,6 @@ class Main {
                         Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
                         +order.orderId,updateData);
                         System.out.println(ou.put());
-                       
                     }
                 }
                 time = System.currentTimeMillis();
