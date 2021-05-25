@@ -94,7 +94,7 @@ public class Request {
         return "Driver Creation ended with response : " + Integer.toString(connection.getResponseCode());
     }
 
-    String postOrder(Store store) throws IOException {
+    Order postOrder(Store store) throws IOException {
         try {
             this.connection.setRequestMethod("POST");
         } catch (ProtocolException e) {
@@ -150,18 +150,15 @@ public class Request {
                 s += cont.charAt(i);
         }
 
-        System.out.println("content = " + s);
         String[] pairs = s.split(",");
         for (int i = 0; i < pairs.length; i++) {
             String pair = pairs[i];
             String[] keyValue = pair.split(":");
-            System.out.println(keyValue[0] + " xxx " + keyValue[1]);
             myMap.put(keyValue[0], keyValue[1]);
         }
         Order order = new Order(myMap.get("\"uuid\""));
-        System.out.println(order);
-        store.orders.add(order);
-        return "order:"+order.orderId+" has been created with code:" + connection.getResponseCode();
+        System.out.println("order:"+order.orderId+" has been created with code:" + connection.getResponseCode());
+        return order;
     }
 
     String post(List<Store> storeList) throws IOException {
@@ -219,19 +216,15 @@ public class Request {
             if (cont.charAt(i) != '{' && cont.charAt(i) != '}')
                 s += cont.charAt(i);
         }
-
-        System.out.println("content = " + s);
         String[] pairs = s.split(",");
         for (int i = 0; i < pairs.length; i++) {
             String pair = pairs[i];
             String[] keyValue = pair.split(":");
-            System.out.println(keyValue[0] + " xxx " + keyValue[1]);
             myMap.put(keyValue[0], keyValue[1]);
         }
         Store store = new Store(myMap.get("\"store_id\""), myMap.get("\"store_number\""));
-        System.out.println(store);
         storeList.add(store);
-        return content.toString();
+        return "store "+store.storeNumber+" is created with code :"+connection.getResponseCode();
     }
     String put() throws IOException {
         try {
@@ -266,7 +259,8 @@ public class Request {
             }
         }
 
-        return "order updated with code : "+this.connection.getResponseCode();
+        return "updated with code : "+this.connection.getResponseCode();
     }
+
 
 }

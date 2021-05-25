@@ -17,11 +17,23 @@ class Main {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please give the number of stores to create :");
         rcount = sc.nextInt();
+        Random rng = new Random(400);//seed to generate the random time
+        System.out.println("Please give the number of orders to create for each store :");
+        ocount = sc.nextInt();
+        System.out.println("Please give max delay between orders (in seconds) :");
+        maxDelay = sc.nextInt();
+        System.out.println("Please give min delay between orders (in seconds) :");
+        minDelay = sc.nextInt();
+        System.out.println("Please give auto-accept delay between orders (in minutes)  :");
+        aDelay = sc.nextInt();
+        cls();
         List<Store> listOfStores = new ArrayList<Store>();
         List<Thread> storeThreads = new ArrayList<Thread>();
 
         System.out.println("Creating Restaurants ...");
+        
         for (int i = 0; i < rcount; i++) {
+            System.out.println((int)((i*100)/rcount)+"%");
             String storeNumber = Integer.toString(i);
             String storeName = "LoadTest-" + storeNumber;
             String storeData = "{\"name\":\"" + storeName
@@ -29,14 +41,16 @@ class Main {
                     + storeNumber + "\",\"lieferandoId\":\"" + storeNumber
                     + "\",\"endOfDayTime\":\"0:0\",\"defaultLanguage\":\"English\",\"soundInterval\":\"5\",\"ringtoneId\":\"F07D7A00-5E1D-0EC2-3B2B-4FD4F9E8C4E9\",\"maxDeliveryTime\":30,\"standardProductionTime\":\"50\",\"defaultCurrency\":\"EUR\",\"street\":\"Radeberger Weg 10\",\"authCode\":\"ovnNRu2TOmDXmBbVs72mgTsJRd2H27CuiY4X\",\"latitude\":0,\"longitude\":0}";
             Request a = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/stores", storeData);
-            System.out.println(storeData);
-            System.out.println(a.post(listOfStores));
+            a.post(listOfStores);
             Thread th = new Thread(listOfStores.get(i));
             storeThreads.add(th);
         }
+        System.out.println("100%");
+        cls();
         System.out.println(" ->Restaurants have been created.");
         System.out.println("Creating drivers for Restaurants....");
         for (int i = 0; i < listOfStores.size(); i++) {
+            System.out.println((int)((i*100)/listOfStores.size())+"%");
             for (int j = 0; j < 2; j++) {
                 Map<String, String> params = new HashMap<>();
                 listOfStores.get(i).storeNumber = getRideOfEnd(listOfStores.get(i).storeNumber);
@@ -54,33 +68,40 @@ class Main {
                     postData.append('=');
                     postData.append(param.getValue());
                 }
-                System.out.println(postData.toString());
                 Request an = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/drivers?"
                         + postData.toString());
-                System.out.println(an.postDriver());
+                an.postDriver();
             }
 
         }
-        System.out.println("Driver has been created successfully !");
+        System.out.println("100%");
+        cls();
+
+        System.out.println(" ->Drivers have been created successfully !");
+
+        System.out.println("Updating stores for driver intelligence ...");
+        int i = 0;
+        for(Store store:listOfStores){
+            System.out.println((int)((i*100)/listOfStores.size())+"%");
+            String updateData = "{\"driver_intelligence_enabled\":1,\"driver_intelligence_isValid\":1}";
+            Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/stores/"
+            +store.storeId,updateData);
+           ou.put();
+           i++;
+           
+        }
+        System.out.println("100%");
+        cls();
+
         System.out.println("Creating the orders for each store simultanily...");
-        Random rng = new Random(400);//seed to generate the random time
-        System.out.println("Please give the number of orders to create for each store :");
-        ocount = sc.nextInt();
-        System.out.println("Please give max delay between orders (in seconds) :");
-        maxDelay = sc.nextInt();
-        System.out.println("Please give min delay between orders (in seconds) :");
-        minDelay = sc.nextInt();
-        System.out.println("Please give auto-accept delay between orders (in minutes)  :");
-        aDelay = sc.nextInt();
+
         sc.close();
         for (Store store : listOfStores) {
             store.delayBetweenOrders = minDelay + rng.nextInt(maxDelay - minDelay + 1);
-            System.out.println("For the store "+store.numberOrders+" chosen waiting time is "+store.delayBetweenOrders);
             store.numberOrders = ocount;
         }
         double time = System.currentTimeMillis();
         for (Thread th : storeThreads) {
-            System.out.println(th.getName());
             th.start();
             if(System.currentTimeMillis()-time/1000>=aDelay){
                 for(Store store :listOfStores){
@@ -96,19 +117,33 @@ class Main {
                 time = System.currentTimeMillis();
             }
         }
+        for(Thread th:storeThreads)
+            try {
+                th.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            cls();
+
         /**
          * set the order status "delivered" again (we dont estimate time here.)
          */
+        System.out.println("Finish (!) : setting all orders as delivered !");
+        i = 0;
         for(Store store :listOfStores){
             for(Order order:store.orders){
+                System.out.println((int)((i*100)/(listOfStores.size()*ocount))+"%");
                 String updateData = "{\"status\":\"delivered\"}";
                 order.orderId = getRideOfEnd(order.orderId);
                 Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
                 +order.orderId,updateData);
                 System.out.println(ou.put());
+                i++;
                
             }
         }
+        System.out.println("100%");
+
 
     }
 
@@ -120,4 +155,12 @@ class Main {
         }
         return strx.toString();
     }
+    public static void cls(){
+        try{
+            new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
+        }catch(Exception e){
+            System.err.println(e);
+        }
+    }
+
 }
