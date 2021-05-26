@@ -4,5 +4,6 @@ maxDelay = 30 seconds / minDelay = 10 seconds
 20 stores & 50 orders for each store : 1 error of 1000 orders
 30 stores & 20 orders for each store : good
 30 stores & 40 orders for each store : good
+30 stores & 50 orders for each store : good
 50 stores & 10 orders for each store : errors
 50 stores & 20 orders for each store : errors
