@@ -5,5 +5,10 @@ maxDelay = 30 seconds / minDelay = 10 seconds
 30 stores & 20 orders for each store : good
 30 stores & 40 orders for each store : good
 30 stores & 50 orders for each store : good
+40 stores & 30 orders for each store : good
+100 stores & 80 orders for each store : errors
+100 stores & 60 orders in 1 hour (minDelay 120 -> maxDelay 300  Autocomplete 10 min)
+            15 orders for eacht store : 30 min  
+200 stores & 60 orders in 1 hour :          
 50 stores & 10 orders for each store : errors
 50 stores & 20 orders for each store : errors

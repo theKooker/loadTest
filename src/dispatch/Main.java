@@ -17,7 +17,7 @@ class Main {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please give the number of stores to create :");
         rcount = sc.nextInt();
-        Random rng = new Random(400);//seed to generate the random time
+        Random rng = new Random(400);// seed to generate the random time
         System.out.println("Please give the number of orders to create for each store :");
         ocount = sc.nextInt();
         System.out.println("Please give max delay between orders (in seconds) :");
@@ -31,14 +31,18 @@ class Main {
         List<Thread> storeThreads = new ArrayList<Thread>();
 
         System.out.println("Creating Restaurants ...");
-        
+
         for (int i = 0; i < rcount; i++) {
-            System.out.println((int)((i*100)/rcount)+"%");
+            System.out.println((int) ((i * 100) / rcount) + "%");
             String storeNumber = Integer.toString(i);
             String storeName = "LoadTest-" + storeNumber;
+            Address address = generateAddress();
             String storeData = "{\"name\":\"" + storeName
-                    + "\",\"contactEmail\":\"test@test.de\",\"brandId\":\"957A3811-7110-4E79-10F3-34C6754CF8BB\",\"brandName\":\"Test\",\"addressLineOne\":\"Radeberger Weg 10\",\"addressLineTwo\":\"Radeberger Weg 10\",\"country\":\"0D73EDEA-E2D8-6B52-4FA3-539117244CBB\",\"city\":\"Garching bei M\u00fcnchen\",\"postcode\":\"85748\",\"storeNumber\":\""
-                    + storeNumber + "\",\"lieferandoId\":\"" + storeNumber
+                    + "\",\"contactEmail\":\"test@test.de\",\"brandId\":\"957A3811-7110-4E79-10F3-34C6754CF8BB\",\"brandName\":\"Test\",\"addressLineOne\":\""
+                    + address.street + "\",\"addressLineTwo\":\"" + address.street
+                    + "\",\"country\":\"0D73EDEA-E2D8-6B52-4FA3-539117244CBB\",\"city\":\"" + address.city
+                    + "\",\"postcode\":\"" + address.postalCode + "\",\"storeNumber\":\"" + storeNumber
+                    + "\",\"lieferandoId\":\"" + storeNumber
                     + "\",\"endOfDayTime\":\"0:0\",\"defaultLanguage\":\"English\",\"soundInterval\":\"5\",\"ringtoneId\":\"F07D7A00-5E1D-0EC2-3B2B-4FD4F9E8C4E9\",\"maxDeliveryTime\":30,\"standardProductionTime\":\"50\",\"defaultCurrency\":\"EUR\",\"street\":\"Radeberger Weg 10\",\"authCode\":\"ovnNRu2TOmDXmBbVs72mgTsJRd2H27CuiY4X\",\"latitude\":0,\"longitude\":0}";
             Request a = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/stores", storeData);
             a.post(listOfStores);
@@ -50,7 +54,7 @@ class Main {
         System.out.println(" ->Restaurants have been created.");
         System.out.println("Creating drivers for Restaurants....");
         for (int i = 0; i < listOfStores.size(); i++) {
-            System.out.println((int)((i*100)/listOfStores.size())+"%");
+            System.out.println((int) ((i * 100) / listOfStores.size()) + "%");
             for (int j = 0; j < 2; j++) {
                 Map<String, String> params = new HashMap<>();
                 listOfStores.get(i).storeNumber = getRideOfEnd(listOfStores.get(i).storeNumber);
@@ -81,14 +85,15 @@ class Main {
 
         System.out.println("Updating stores for driver intelligence ...");
         int i = 0;
-        for(Store store:listOfStores){
-            System.out.println((int)((i*100)/listOfStores.size())+"%");
+        for (Store store : listOfStores) {
+            System.out.println((int) ((i * 100) / listOfStores.size()) + "%");
             String updateData = "{\"driver_intelligence_enabled\":1,\"driver_intelligence_isValid\":1}";
-            Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/stores/"
-            +store.storeId,updateData);
-           ou.put();
-           i++;
-           
+            Request ou = new Request(
+                    "https://menu-ecs-service-dispatch-core-playground.menu.app/api/stores/" + store.storeId,
+                    updateData);
+            ou.put();
+            i++;
+
         }
         System.out.println("100%");
         cls();
@@ -97,52 +102,55 @@ class Main {
 
         sc.close();
         for (Store store : listOfStores) {
-            store.delayBetweenOrders = minDelay + rng.nextInt(maxDelay - minDelay + 1);
+            store.minDelay = minDelay;
+            store.maxDelay = maxDelay;
             store.numberOrders = ocount;
         }
         double time = System.currentTimeMillis();
         for (Thread th : storeThreads) {
             th.start();
-            if(System.currentTimeMillis()-time/1000>=aDelay){
-                for(Store store :listOfStores){
-                    for(Order order:store.orders){
+            if (System.currentTimeMillis() - time / 1000 >= aDelay) {
+                for (Store store : listOfStores) {
+                    for (Order order : store.orders) {
                         String updateData = "{\"status\":\"delivered\"}";
                         order.orderId = getRideOfEnd(order.orderId);
-                        Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
-                        +order.orderId,updateData);
+                        Request ou = new Request(
+                                "https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
+                                        + order.orderId,
+                                updateData);
                         System.out.println(ou.put());
                     }
                 }
                 time = System.currentTimeMillis();
             }
         }
-        for(Thread th:storeThreads)
+        for (Thread th : storeThreads)
             try {
                 th.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            cls();
+       // cls();
 
         /**
          * set the order status "delivered" again (we dont estimate time here.)
          */
         System.out.println("Finish (!) : setting all orders as delivered !");
         i = 0;
-        for(Store store :listOfStores){
-            for(Order order:store.orders){
-                System.out.println((int)((i*100)/(listOfStores.size()*ocount))+"%");
+        for (Store store : listOfStores) {
+            for (Order order : store.orders) {
+                System.out.println((int) ((i * 100) / (listOfStores.size() * ocount)) + "%");
                 String updateData = "{\"status\":\"delivered\"}";
                 order.orderId = getRideOfEnd(order.orderId);
-                Request ou = new Request("https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/"
-                +order.orderId,updateData);
+                Request ou = new Request(
+                        "https://menu-ecs-service-dispatch-core-playground.menu.app/api/orders/" + order.orderId,
+                        updateData);
                 System.out.println(ou.put());
                 i++;
-               
+
             }
         }
         System.out.println("100%");
-
 
     }
 
@@ -154,12 +162,36 @@ class Main {
         }
         return strx.toString();
     }
-    public static void cls(){
-        try{
-            new ProcessBuilder("cmd","/c","cls").inheritIO().start().waitFor();
-        }catch(Exception e){
+
+    public static void cls() {
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (Exception e) {
             System.err.println(e);
         }
     }
 
+    public static Address generateAddress() {
+        Address address = new Address();
+        Random rng = new Random();
+        double value1 = rng.nextDouble();
+        if (value1 > 0.22) {
+            value1 *= 0.22;
+        }
+        double lat = 48 + value1;
+        double value2 = rng.nextDouble();
+        value2 = 0.4 + (value2 - 0) * (0.6 - 0.4) / 1.0;
+        double lng = 11 + value2;
+        String url = "https://nominatim-dach-mdd.menu.app/reverse.php?format=json&lat=" + lat + "&lon=" + lng;
+        Request getRequest = new Request(url, 0);
+        try {
+            address = getRequest.getA();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
 }
+// 48+rd.nextDouble()/2
+// 11+rd.nextDouble()/2
